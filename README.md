@@ -1,7 +1,6 @@
-# Novus (ntpinc.io) - ServBeyond
-Code Samples
+# Novus - ServBeyond - Vertex
 
-This repository contains custom modules and work projects. Below is a brief description of select items.
+Code samples and custom projects repository. Below is a description of select items, which can be viewed in the sidebar file tree or with a find (`ctrl+f`).
 
 ## Subprojects
 
