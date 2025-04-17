@@ -1,6 +1,6 @@
-# Novus - ServBeyond - Vertex
+# Novus Serv Vertex
 
-Code samples and custom projects repository. Below is a description of select items. 
+Code samples and select custom work. Below is a description of select items. 
 
 ## Subprojects
 
@@ -14,7 +14,7 @@ Code samples and custom projects repository. Below is a description of select it
 
 ### wake_events
 - A custom iCal events feed using `Jsvrcek\ICS` data models. Solution for recurring-events subscriptions, despite field inheritance.
-- Path: `web/modules/custom/wake_events`
+- Path: `web/modules/custom/wake_events/README.md`
 
 ### dfci_starter_content
 - Creates starter content on new subsites; provides DevelGenerate plugins.
