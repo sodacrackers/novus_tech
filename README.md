@@ -1,6 +1,6 @@
 # Novus - ServBeyond - Vertex
 
-Code samples and custom projects repository. Below is a description of select items, which can be viewed in the sidebar file tree or with a find (`ctrl+f`).
+Code samples and custom projects repository. Below is a description of select items. 
 
 ## Subprojects
 
