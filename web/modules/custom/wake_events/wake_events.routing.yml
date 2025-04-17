@@ -1,0 +1,28 @@
+# Registrant success route.
+entity.registrant.success:
+  path: '/events/{eventinstance}/registrations/success/{type}'
+  defaults:
+    _controller: '\Drupal\wake_events\Controller\RegistrantController::successPage'
+    _title_callback: '\Drupal\wake_events\Controller\RegistrantController::getSuccessTitle'
+  requirements:
+    # Anyone can access.
+    _access: 'TRUE'
+  options:
+    parameters:
+      eventinstance:
+        type: entity:eventinstance
+      type:
+        type: string
+
+# Calendar Events Feed.
+wake_events.feed:
+  path: '/events/feed/{department}/{category}/{location}/{audience}'
+  defaults:
+    _controller: '\Drupal\wake_events\Controller\ICalFeed::go'
+    department: ''
+    category: ''
+    location: ''
+    audience: ''
+  requirements:
+    # Anyone can access.
+    _access: 'TRUE'

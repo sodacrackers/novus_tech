@@ -1,0 +1,8 @@
+name: Wake Events
+type: module
+description: Wake customizations of the recurring_events module.
+package: wake
+core_version_requirement: '^8.8 || ^9 || ^10'
+dependencies:
+  - drupal:recurring_events
+  - recurring_events:recurring_events_registration

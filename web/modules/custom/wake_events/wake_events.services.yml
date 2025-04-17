@@ -1,0 +1,25 @@
+services:
+
+  wake_events.route_subscriber:
+    class: Drupal\wake_events\Routing\RouteSubscriber
+    tags:
+      - { name: event_subscriber }
+
+  wake_events.form_alter_event_dispatcher:
+    class: Drupal\wake_events\EventSubscriber\FormAlter\EventsFormAlter
+    tags:
+      - { name: event_subscriber }
+
+  wake_events.honeypot_for_events_form_alter:
+    class: Drupal\wake_events\EventSubscriber\FormAlter\HoneypotForEventsFormAlter
+    arguments: ['@honeypot']
+    tags:
+      - { name: event_subscriber }
+
+  wake_events.event_registration_form_alter:
+    class: Drupal\wake_events\EventSubscriber\Form\Alter\EventRegistrationForm
+    arguments:
+      - '@current_route_match'
+      - '@recurring_events_registration.creation_service'
+    tags:
+      - { name: event_subscriber }

@@ -1,0 +1,150 @@
+<?php
+
+/**
+ * @file
+ * Primary module hooks for Wake Events module.
+ */
+
+use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Link;
+use Drupal\recurring_events\Entity\EventInstance;
+use Drupal\recurring_events\Entity\EventInstanceType;
+
+/**
+ * Implements hook_entity_extra_field_info().
+ */
+function wake_events_entity_extra_field_info() {
+  $extra = [];
+
+  foreach (EventInstanceType::loadMultiple() as $bundle) {
+    $extra['eventinstance'][$bundle->id()]['display']['register_button'] = [
+      'label' => t('Register button'),
+      'description' => t('Pseudo-field for adding a register button to an event instance'),
+      'weight' => 100,
+      'visible' => TRUE,
+    ];
+  }
+
+  return $extra;
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_view().
+ */
+function wake_events_eventinstance_view(array &$build, EntityInterface $entity, EntityViewDisplayInterface $display, $view_mode) {
+  if ($display->getComponent('register_button')) {
+    $service = \Drupal::service('recurring_events_registration.creation_service');
+    $service->setEventInstance($entity);
+    if ($service->hasRegistration()) {
+      $link = Link::createFromRoute(
+        t('Sign Up'),
+        'entity.registrant.add_form',
+        ['eventinstance' => $entity->id()],
+        [
+          'attributes' => [
+            'class' => 'btn btn-primary',
+          ],
+        ]
+      );
+      $build['register_button'] = $link->toRenderable();
+    }
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function wake_events_form_alter(array &$form, FormStateInterface $form_state, $form_id) {
+  $registrant_types = \Drupal::entityTypeManager()->getStorage('registrant_type')->loadMultiple();
+  if (!empty($registrant_types)) {
+    foreach ($registrant_types as $type) {
+      $form_ids[] = 'registrant_' . $type->id() . '_add_form';
+    }
+
+    if (array_search($form_id, $form_ids) !== FALSE) {
+      $form['actions']['submit']['#submit'][] = '_wake_events_registrant_form_submit';
+      $form['actions']['submit']['#value'] = t('Register');
+      $form['email']['widget'][0]['value']['#required'] = TRUE;
+    }
+  }
+
+  $event_instance_types = \Drupal::entityTypeManager()->getStorage('eventinstance_type')->loadMultiple();
+  if (!empty($event_instance_types)) {
+    foreach ($event_instance_types as $type) {
+      $form_ids[] = 'eventinstance_' . $type->id() . '_add_form';
+      $form_ids[] = 'eventinstance_' . $type->id() . '_edit_form';
+      $form_ids[] = 'eventseries_' . $type->id() . '_add_form';
+      $form_ids[] = 'eventseries_' . $type->id() . '_edit_form';
+    }
+
+    // Hide the promote to front page field from non admins.
+    if (array_search($form_id, $form_ids) !== FALSE) {
+      $roles = \Drupal::currentUser()->getRoles();
+      if (array_search('administrator', $roles) === FALSE && array_search('wake_admin', $roles) === FALSE) {
+        $form['field_promote_front']['#access'] = FALSE;
+      }
+    }
+  }
+
+  // Hide the captcha widget if the registration is closed or no available
+  // tickets.
+  $event_instance = \Drupal::service('current_route_match')->getParameter('eventinstance');
+  if (!empty($event_instance) && $event_instance instanceof EventInstance && $event_instance->getEntityTypeId() === 'eventinstance') {
+    $registration_creation_service = \Drupal::service('recurring_events_registration.creation_service');
+    $registration_creation_service->setEventInstance($event_instance);
+    if (!$registration_creation_service->registrationIsOpen() || $registration_creation_service->retrieveAvailability() == 0) {
+      unset($form['captcha']);
+    }
+  }
+}
+
+/**
+ * Form Callback: _wake_events_registrant_form_submit.
+ *
+ * @param array $form
+ *   The form array.
+ * @param Drupal\Core\Form\FormStateInterface $form_state
+ *   The form state interface.
+ */
+function _wake_events_registrant_form_submit(array &$form, FormStateInterface $form_state) {
+  $waitlist = $form_state->getValue('add_to_waitlist');
+
+  $event_instance = \Drupal::service('current_route_match')->getParameter('eventinstance');
+  $form_state->setRedirect('entity.registrant.success', [
+    'eventinstance' => $event_instance->id(),
+    'type' => $waitlist ? 'waitlist' : 'full',
+  ]);
+}
+
+/**
+ * Implements hook_theme().
+ */
+function wake_events_theme($existing, $type, $theme, $path) {
+  return [
+    'wake_events_registrant_waitlist' => [
+      'variables' => [
+        'eventinstance' => NULL,
+        'eventseries' => NULL,
+      ],
+    ],
+    'wake_events_registrant_full' => [
+      'variables' => [
+        'eventinstance' => NULL,
+        'eventseries' => NULL,
+      ],
+    ],
+  ];
+}
+
+/**
+ * Implements hook_mail_alter().
+ */
+function wake_events_mail_alter(&$message) {
+  if ($message['id'] == 'recurring_events_registration_registration_notification') {
+    // In Registration Notification to handle ZOOM link where its not
+    // available, we will replace text message and token with blank.
+    $message['body'] = str_replace('Join this event via ZOOM: [eventinstance:field_zoom_link:uri]', '', $message['body']);
+  }
+}

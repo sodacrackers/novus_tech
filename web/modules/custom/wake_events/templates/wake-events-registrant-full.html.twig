@@ -1,0 +1,85 @@
+{#
+/**
+ * @file
+ * Theme override to display the full confirmation page for registrants.
+ *
+ * Available variables:
+ * - eventinstance: The eventinstance entity for which the user registered.
+ * - eventseries: The eventseries entity for which the user registered.
+ */
+#}
+<div class="registrant-confirmation row">
+	<div class="registrant-confirmation-full col">
+		<h2>
+			<i class="fas fa-check"></i>
+			{{ "Registration Complete!"|t}}</h2>
+		<div class="content">
+			{% trans %}
+			You’re signed up for our event. We look forward to seeing you there!
+			Please check the email you provided for a confirmation message and additional event updates as they become available.
+			{% endtrans %}
+		</div>
+		{% if (eventseries.field_fa_icon is not empty) and (eventseries.field_registration_message is not empty) %}
+			<p class="registrant-message">
+				{{ eventseries.field_fa_icon.value }}
+				{{ eventseries.field_registration_message.value }}</p>
+		{% endif %}
+		{% if (eventseries.field_icon is not empty) and (eventseries.field_registration_message is not empty) %}
+			<p class="registrant-message">
+				<i class="{{ eventseries.field_icon.value }} icon"></i>
+				{{ eventseries.field_registration_message.value }}</p>
+		{% endif %}
+		<p>
+			<a href="{{ path('entity.registrant.add_form', {'eventinstance': eventinstance.id.value }) }}" class="registrant-confirmation-link">{{ "Return to Registration Form"|t }}</a>
+		</p>
+		<p>
+			<a href="{{ path('entity.eventinstance.canonical', {'eventinstance': eventinstance.id.value }) }}" class="registrant-confirmation-link">{{ "Go to Event Details"|t }}</a>
+		</p>
+		{#
+		<h3>{{ "Need help or have additional questions"|t }}</h3>
+		<p>
+			<a href="/contact-us" class="registrant-confirmation-link">{{ "Contact Us For Assistance"|t }}</a>
+		</p>
+		#}
+	</div>
+
+	<div class="registration-details event__details col percent-33">
+		{% set startDate = eventinstance.date['0'].value|replace({'T': ' '})|date("F d, Y") %}
+		<div class="event--detail-items">
+			<i class="far fa-calendar-alt"></i>
+			{{ startDate }}
+		</div>
+		{% if eventinstance.date['0'].value %}
+			<div class="event--detail-items">
+				<i class="far fa-clock"></i>
+				{{ eventTime }} to {{ endTime }}
+			</div>
+		{% else %}
+			<div class="event--detail-items">
+				<i class="far fa-clock"></i>
+				{{ eventTime }}
+			</div>
+		{% endif %}
+		<div>
+			<div class="event--detail-items">
+				<i class="far fa-dollar-sign"></i>
+				{{ eventinstance.event_cost.value }}
+			</div>
+			<div class="event--detail-items">
+				<i class="far fa-users"></i>
+				{% if availability < 0 %}
+					{{ "Unlimited"|t }}
+				{% elseif availability is same as(0) %}
+					{% if waitlist is not empty %}
+						{{ "Waitlist Only"|t }}
+					{% else %}
+						{{ "Full"|t }}
+					{% endif %}
+				{% else %}
+					{{ availability }}
+					{{ "spots remaining"|t }}
+				{% endif %}
+			</div>
+		</div>
+	</div>
+</div>
