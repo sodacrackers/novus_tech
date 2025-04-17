@@ -1,11 +1,9 @@
 # Novus (ntpinc.io) - ServBeyond
-# Code Samples
+Code Samples
 
-This repository contains various code samples and projects. Below is an index with a brief description of each subproject.
+This repository contains custom modules and work projects. Below is a brief description of select items.
 
 ## Subprojects
-
-## Drupal projects
 
 ### if_swiftype
 - Adds Swiftype Elastic search functionality via HTML tags for Swiftype crawling.
@@ -27,7 +25,7 @@ This repository contains various code samples and projects. Below is an index wi
 - Drupal.org module. Enhances accessibility by allowing images to be marked as decorative.
 - Path: `web/modules/custom/decorative_images/README.md`
 
-## Other pprojects
+## Other projects
 
 ### nightwatch
 - Automated end-to-end testing powered by Nightwatch, Node.js, and BrowserStack Webdriver.
